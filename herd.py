@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import tempfile, sys, os, time
 from os import path
 from greenlet import GreenletExit
