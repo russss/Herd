@@ -12,7 +12,7 @@ PORT = 8998
 REMOTE_PATH = '/tmp/herd'
 DATA_FILE = './data'
 
-def run(local_file, remote_file):
+def run(local_file, remote_file, hosts):
     start = time.time()
     print "Spawning tracker..."
     tracker = eventlet.spawn(track)
@@ -27,7 +27,7 @@ def run(local_file, remote_file):
         subprocess.call("tar cfz ./bittornado.tar.gz ./BitTornado".split(' '))
     pool = eventlet.GreenPool(100)
     threads = []
-    for host in ('10.1.0.40',):
+    for host in hosts:
         threads.append(pool.spawn(transfer, host, torrent_file, remote_file))
     for thread in threads:
         thread.wait()
@@ -81,4 +81,5 @@ def local_ip():
      return s.getsockname()[0]
 
 if __name__ == '__main__':
-    run(sys.argv[1], sys.argv[2])
+    hosts = [line.strip() for line in open(sys.argv[3], 'r') if line[0] != '#']
+    run(sys.argv[1], sys.argv[2], hosts)
