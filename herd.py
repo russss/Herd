@@ -2,7 +2,8 @@ import tempfile, sys, os, time
 from os import path
 from greenlet import GreenletExit
 import eventlet
-from eventlet.green import socket, subprocess
+from eventlet.green import socket
+from eventlet.green import subprocess
 murder_client = eventlet.import_patched('murder_client')
 bttrack = eventlet.import_patched('BitTornado.BT1.track')
 makemetafile = eventlet.import_patched('BitTornado.BT1.makemetafile')
@@ -75,8 +76,9 @@ def seed(torrent, local_file):
                         "--saveas", local_file])
 
 def local_ip():
-    output = subprocess.Popen("ip", "route", "get", "10.0.0.1").communicate()[0]
-    return output.split("\n")[0].strip().split(" ")[-1]
+     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+     s.connect(("10.1.0.0", 0))
+     return s.getsockname()[0]
 
 if __name__ == '__main__':
     hosts = [line.strip() for line in open(sys.argv[3], 'r') if line[0] != '#']
