@@ -1,4 +1,4 @@
-import tempfile, sys, os, time, command
+import tempfile, sys, os, time
 from os import path
 from greenlet import GreenletExit
 import eventlet
@@ -75,7 +75,8 @@ def seed(torrent, local_file):
                         "--saveas", local_file])
 
 def local_ip():
-    return commands.getoutput("ip route get 10.0.0.1").split("\n")[0].strip().split(" ")[-1]
+    output = subprocess.Popen("ip", "route", "get", "10.0.0.1").communicate()[0]
+    return output.split("\n")[0].strip().split(" ")[-1]
 
 if __name__ == '__main__':
     hosts = [line.strip() for line in open(sys.argv[3], 'r') if line[0] != '#']
