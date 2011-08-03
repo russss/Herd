@@ -44,7 +44,7 @@ def resetPeerIDs():
     l3 = 0
     if l2 < 1000:
         t = long(time()*10)
-        while t == long(clock()*10):
+        while t == long(time()*10):
             l3 += 1
     x += ( repr(time()) + '/' + str(time()) + '/'
            + str(l1) + '/' + str(l2) + '/' + str(l3) + '/'
