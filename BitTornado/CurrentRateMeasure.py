@@ -12,6 +12,8 @@ class Measure:
         self.total = 0l
 
     def update_rate(self, amount):
+        self.rate = 0
+        return
         self.total += amount
         t = clock()
         self.rate = (self.rate * (self.last - self.ratesince) + 
@@ -21,8 +23,9 @@ class Measure:
             self.ratesince = t - self.max_rate_period
 
     def get_rate(self):
-        self.update_rate(0)
-        return self.rate
+        return 0
+        #self.update_rate(0)
+        #return self.rate
 
     def get_rate_noupdate(self):
         return self.rate
