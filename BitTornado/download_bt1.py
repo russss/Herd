@@ -40,11 +40,11 @@ except:
     False = 0
 
 defaults = [
-    ('max_uploads', 1,
+    ('max_uploads', 100,
         "the maximum number of uploads to allow at once."),
     ('keepalive_interval', 120.0,
         'number of seconds to pause between sending keepalives'),
-    ('download_slice_size', 2 ** 14,
+    ('download_slice_size', 2 ** 17,
         "How many bytes to query for per request."),
     ('upload_unit_size', 1460,
         "when limiting upload rate, how many bytes to send at a time"),
@@ -107,9 +107,9 @@ defaults = [
         'number of peers at which to stop initiating new connections'),
     ('check_hashes', 1,
         'whether to check hashes on disk'),
-    ('max_upload_rate', 10240,
+    ('max_upload_rate', 0,
         'maximum kB/s to upload at (0 = no limit, -1 = automatic)'),
-    ('max_download_rate', 10240,
+    ('max_download_rate', 0,
         'maximum kB/s to download at (0 = no limit)'),
     ('alloc_type', 'normal',
         'allocation type (may be normal, background, pre-allocate or sparse)'),
