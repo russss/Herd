@@ -65,7 +65,7 @@ def scp(host, local_file, remote_file):
 def mktorrent(file_name, tracker):
     torrent_file = tempfile.mkstemp('.torrent')
     makemetafile.make_meta_file(file_name, "http://%s/announce" % tracker,
-                                        {'target': torrent_file[1]})
+                                        {'target': torrent_file[1], 'piece_size_pow2': 0})
     return torrent_file[1]
 
 def track():
