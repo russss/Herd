@@ -1,12 +1,7 @@
-This software is licensed under the Apache 2 license, quoted below.
+Unless otherwise noted, all files are released under the MIT
+license, exceptions contain licensing information in them.
 
-Copyright 2011 Russ Garrett <russ@garrett.co.uk>
-Copyright 2011 Laurie Denness
-Copyright 2010 Twitter, Inc.
-Copyright 2010 Larry Gadea <lg@twitter.com>
-Copyright 2010 Matt Freels <freels@twitter.com>
-
-BitTornado is licensed separately under an MIT license.
+Copyright (C) 2001-2002 Bram Cohen
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation files
@@ -18,7 +13,6 @@ subject to the following conditions:
 
 The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
-
 
 The Software is provided "AS IS", without warranty of any kind,
 express or implied, including but not limited to the warranties of
