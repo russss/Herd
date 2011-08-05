@@ -133,11 +133,6 @@ class Connection:
             if DEBUG:
                 print 'sending chunk: '+str(index)+': '+str(begin)+'-'+str(begin+len(piece))
 
-        if bytes < len(self.partial_message):
-            self.connection.send_message_raw(self.partial_message[:bytes])
-            self.partial_message = self.partial_message[bytes:]
-            return bytes
-
         q = [self.partial_message]
         self.partial_message = None
         if self.send_choke_queued:
