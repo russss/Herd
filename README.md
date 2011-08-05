@@ -9,12 +9,19 @@ its own (lightly modified) copy of BitTornado.
 
 ## Differences from Murder
 
-Murder (https://github.com/lg/murder) was Twitter's original BitTorrent-based file
+[Murder](https://github.com/lg/murder) was Twitter's original BitTorrent-based file
 distribution system. It's pretty dependent on Capistrano and requires that a separate
 tracker process is started before you run the deploy task.
 
 Herd is run by a single command, which spawns its own tracker in the background. This
 makes it really trivial to integrate into whatever deployment system you like.
+
+## Requirements
+
+Herd needs Python > 2.5 and eventlet (on the source system only). All other libraries
+are shipped with it. To install eventlet, you can just do:
+
+    easy_install eventlet
 
 ## Usage
 
@@ -27,5 +34,5 @@ Create a file hosts.dat with a list of the hosts you want to copy to, and:
 
 ## Credits
 
-* Russ Garrett (http://github.com/russss)
-* Laurie Denness (http://github.com/lozzd)
+* [Russ Garrett](http://github.com/russss)
+* [Laurie Denness](http://github.com/lozzd)
