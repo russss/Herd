@@ -3,7 +3,6 @@ import tempfile
 import sys
 import os
 import time
-from greenlet import GreenletExit
 import eventlet
 from eventlet.green import socket
 from eventlet.green import subprocess
@@ -97,5 +96,11 @@ def local_ip():
 
 
 if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        sys.exit('ERROR: This command requires 3 command line options')
+
+    if not os.path.exists(sys.argv[3]):
+        sys.exit('ERROR: hosts file "%s" does not exist' % sys.argv[3])
+
     hosts = [line.strip() for line in open(sys.argv[3], 'r') if line[0] != '#']
     run(sys.argv[1], sys.argv[2], hosts)
