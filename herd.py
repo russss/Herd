@@ -2,7 +2,6 @@
 import tempfile
 import sys
 import os
-from os import path
 import time
 from greenlet import GreenletExit
 import eventlet
@@ -47,15 +46,16 @@ def run(local_file, remote_file, hosts):
 
 
 def transfer(host, local_file, remote_target):
-    file_name = path.basename(local_file)
-    remote_file = '%s/%s' % (REMOTE_PATH, file_name)
+    rp = REMOTE_PATH
+    file_name = os.path.basename(local_file)
+    remote_file = '%s/%s' % (rp, file_name)
     scp(host, local_file, remote_file)
-    if ssh(host, 'test -d %s/BitTornado' % REMOTE_PATH) != 0:
-        ssh(host, "mkdir %s" % REMOTE_PATH)
-        scp(host, 'bittornado.tar.gz', '%s/bittornado.tar.gz' % REMOTE_PATH)
-        ssh(host, "cd %s; tar zxvf bittornado.tar.gz > /dev/null" % REMOTE_PATH)
-        scp(host, 'murder_client.py', '%s/murder_client.py' % REMOTE_PATH)
-    result = ssh(host, 'python %s/murder_client.py peer %s %s' % (REMOTE_PATH,
+    if ssh(host, 'test -d %s/BitTornado' % rp) != 0:
+        ssh(host, "mkdir %s" % rp)
+        scp(host, 'bittornado.tar.gz', '%s/bittornado.tar.gz' % rp)
+        ssh(host, "cd %s; tar zxvf bittornado.tar.gz > /dev/null" % rp)
+        scp(host, 'murder_client.py', '%s/murder_client.py' % rp)
+    result = ssh(host, 'python %s/murder_client.py peer %s %s' % (rp,
                     remote_file, remote_target))
     ssh(host, 'rm %s' % remote_file)
     if result == 0:
