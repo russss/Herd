@@ -64,12 +64,16 @@ def transfer(host, local_file, remote_target):
 
 
 def ssh(host, command):
-    return subprocess.call(['ssh', host, command], stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
+    return subprocess.call(['ssh', '-o UserKnownHostsFile=/dev/null',
+                '-o StrictHostKeyChecking=no',
+                host, command], stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
 
 
 def scp(host, local_file, remote_file):
-    return subprocess.call(['scp', local_file, '%s:%s' % (host, remote_file)],
+    return subprocess.call(['scp', '-o UserKnownHostsFile=/dev/null',
+                '-o StrictHostKeyChecking=no',
+                local_file, '%s:%s' % (host, remote_file)],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
