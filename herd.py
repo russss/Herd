@@ -16,6 +16,9 @@ PORT = 8998
 REMOTE_PATH = '/tmp/herd'
 DATA_FILE = './data'
 
+herd_root = os.path.dirname(__file__)
+bittornado_tgz = os.path.join(herd_root, 'bittornado.tar.gz')
+murderclient_py = os.path.join(herd_root, 'murder_client.py')
 
 def run(local_file, remote_file, hosts):
     start = time.time()
@@ -25,11 +28,16 @@ def run(local_file, remote_file, hosts):
     local_host = (local_ip(), PORT)
     print "Creating torrent (host %s:%s)..." % local_host
     torrent_file = mktorrent(local_file, '%s:%s' % local_host)
-    print "Seeding"
+    print "Seeding %s" % torrent_file
     eventlet.spawn(seed, torrent_file, local_file)
     print "Transferring"
-    if not os.path.isfile('./bittornado.tar.gz'):
-        subprocess.call("tar cfz ./bittornado.tar.gz ./BitTornado".split(' '))
+    if not os.path.isfile(bittornado_tgz):
+        cwd = os.getcwd()
+        os.chdir(herd_root)
+        args = ['tar', 'czf', 'bittornado.tar.gz', 'BitTornado']
+        print "Executing", " ".join(args)
+        subprocess.call(args)
+        os.chdir(cwd)
     pool = eventlet.GreenPool(100)
     threads = []
     for host in hosts:
@@ -48,12 +56,14 @@ def transfer(host, local_file, remote_target):
     rp = REMOTE_PATH
     file_name = os.path.basename(local_file)
     remote_file = '%s/%s' % (rp, file_name)
+    print "Copying %s to %s:%s" % (local_file, host, remote_file)
     scp(host, local_file, remote_file)
     if ssh(host, 'test -d %s/BitTornado' % rp) != 0:
         ssh(host, "mkdir %s" % rp)
-        scp(host, 'bittornado.tar.gz', '%s/bittornado.tar.gz' % rp)
+        scp(host, bittornado_tgz, '%s/bittornado.tar.gz' % rp)
         ssh(host, "cd %s; tar zxvf bittornado.tar.gz > /dev/null" % rp)
-        scp(host, 'murder_client.py', '%s/murder_client.py' % rp)
+        scp(host, murderclient_py, '%s/murder_client.py' % rp)
+    print 'python %s/murder_client.py peer %s %s' % (rp, remote_file, remote_target)
     result = ssh(host, 'python %s/murder_client.py peer %s %s' % (rp,
                     remote_file, remote_target))
     ssh(host, 'rm %s' % remote_file)
