@@ -22,6 +22,10 @@ Herd needs Python > 2.5 and eventlet (on the source system only). All other libr
 are shipped with it. To install eventlet, you can just do:
 
     easy_install eventlet
+    
+On CentOS:
+
+    yum install python-eventlet
 
 ## Usage
 
@@ -30,7 +34,7 @@ with the same account, to all the machines you need to copy to.
 
 Create a file hosts.dat with a list of the hosts you want to copy to, and:
 
-    herd.py ./myfile.tar.gz /path/to/destination.tar.gz hosts.dat
+    /path/to/herd.py ./myfile.tar.gz /path/to/destination.tar.gz hosts.dat
 
 ## Credits
 
