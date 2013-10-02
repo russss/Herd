@@ -89,6 +89,7 @@ class HeadlessDisplayer:
         self.peerStatus = ''
         self.errors = []
         self.last_update_time = -1
+        self.return_code = 0
 
     def finished(self):
         global doneFlag
@@ -124,14 +125,16 @@ class HeadlessDisplayer:
         self.timeEst = 'Download Failed!'
         self.downRate = ''
         global doneFlag
+        self.return_code = 1
         doneFlag.set()
         #self.display()
 
     def error(self, errormsg):
-        #self.errors.append(errormsg)
+        self.errors.append(errormsg)
         self.display()
         global doneFlag
-        print errormsg
+        #print errormsg
+        self.return_code = 1
         doneFlag.set()
 
     def display(self, dpflag = Event(), fractionDone = None, timeEst = None,
@@ -257,6 +260,7 @@ def run(params):
         pass
     if not h.done:
         h.failed()
+    sys.exit(h.return_code)
 
 if __name__ == '__main__':
 
