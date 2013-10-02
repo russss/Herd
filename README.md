@@ -18,7 +18,7 @@ makes it really trivial to integrate into whatever deployment system you like.
 
 ## Requirements
 
-Herd needs Python > 2.5 and eventlet (on the source system only). All other libraries
+Herd needs Python > 2.5, argparse,  and eventlet (on the source system only). All other libraries
 are shipped with it. To install eventlet, you can just do:
 
     easy_install eventlet
@@ -26,6 +26,10 @@ are shipped with it. To install eventlet, you can just do:
 On CentOS:
 
     yum install python-eventlet
+
+Argparse can be found with easy_install as well:
+
+    easy_install argparse
 
 ## Usage
 
