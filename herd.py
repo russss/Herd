@@ -90,13 +90,13 @@ def transfer(host, local_file, remote_target, retry=0):
     rp = opts['remote_path']
     file_name = os.path.basename(local_file)
     remote_file = '%s/%s' % (rp, file_name)
-    print "Copying %s to %s:%s" % (local_file, host, remote_file)
-    scp(host, local_file, remote_file)
     if ssh(host, 'test -d %s/BitTornado' % rp) != 0:
         ssh(host, "mkdir %s" % rp)
         scp(host, bittornado_tgz, '%s/bittornado.tar.gz' % rp)
         ssh(host, "cd %s; tar zxvf bittornado.tar.gz > /dev/null" % rp)
         scp(host, murderclient_py, '%s/murder_client.py' % rp)
+    print "Copying %s to %s:%s" % (local_file, host, remote_file)
+    scp(host, local_file, remote_file)
     command = 'python %s/murder_client.py peer %s %s' % (rp, remote_file, remote_target)
     print "running \"%s\" on %s" %  (command, host)
     result = ssh(host, command)
