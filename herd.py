@@ -85,10 +85,13 @@ def run(local_file, remote_file, hosts):
         os.chdir(cwd)
     pool = eventlet.GreenPool(100)
     threads = []
+    remainingHosts = hosts      
     for host in hosts:
         threads.append(pool.spawn(transfer, host, torrent_file, remote_file, opts['retry']))
     for thread in threads:
-        thread.wait()
+        host = thread.wait()
+        remainingHosts.remove(host)
+        log.info("Done: %-6s Remaining: %s" % (host, remainingHosts))
     os.unlink(torrent_file)
     try:
         os.unlink(opts['data_file'])
@@ -112,14 +115,13 @@ def transfer(host, local_file, remote_target, retry=0):
     log.info("running \"%s\" on %s" %  (command, host))
     result = ssh(host, command)
     ssh(host, 'rm %s' % remote_file)
-    if result == 0:
-        print "%s complete" % host
-    else:
+    if result != 0:
         log.info("%s FAILED with code %s" % (host, result))
         while retry != 0:
             retry = retry - 1
             log.info("retrying on %s" % host)
             transfer(host, local_file, remote_target, 0)
+    return host
 
 
 def ssh(host, command):
