@@ -167,7 +167,11 @@ def local_ip():
 def  herdmain():
     if not os.path.exists(opts['hosts']):
         sys.exit('ERROR: hosts file "%s" does not exist' % opts['hosts'])
-    hosts = [line.strip() for line in open(opts['hosts'], 'r') if not re.match("^#", line[0])]
+    hosts = [line.strip() for line in open(opts['hosts'], 'r')]
+    # filter out comments and empty lines
+    hosts = [host for host in hosts if not re.match("^#", host) and not host == '']
+    # handles duplicates
+    hosts = list(set(hosts))
     log.info("Running with options: %s" % opts)
     log.info("Running for hosts: %s" % hosts)
     run(opts['local-file'], opts['remote-file'], hosts)
