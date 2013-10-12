@@ -6,6 +6,7 @@ import time
 import eventlet
 import re
 import argparse
+import logging
 from eventlet.green import socket
 from eventlet.green import subprocess
 
@@ -49,6 +50,16 @@ murder_client = eventlet.import_patched('murder_client')
 bttrack = eventlet.import_patched('BitTornado.BT1.track')
 makemetafile = eventlet.import_patched('BitTornado.BT1.makemetafile')
 
+log = logging.getLogger('herd')
+log.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
+ch.setFormatter(formatter)
+# add the handlers to the log
+log.addHandler(ch)
 
 herd_root = os.path.dirname(__file__)
 bittornado_tgz = os.path.join(herd_root, 'bittornado.tar.gz')
@@ -56,34 +67,37 @@ murderclient_py = os.path.join(herd_root, 'murder_client.py')
 
 def run(local_file, remote_file, hosts):
     start = time.time()
-    print "Spawning tracker..."
+    log.info("Spawning tracker...")
     eventlet.spawn(track)
     eventlet.sleep(1)
     local_host = (local_ip(), opts['port'])
-    print "Creating torrent (host %s:%s)..." % local_host
+    log.info("Creating torrent (host %s:%s)..." % local_host)
     torrent_file = mktorrent(local_file, '%s:%s' % local_host)
-    print "Seeding %s" % torrent_file
+    log.info("Seeding %s" % torrent_file)
     eventlet.spawn(seed, torrent_file, local_file)
-    print "Transferring"
+    log.info("Transferring")
     if not os.path.isfile(bittornado_tgz):
         cwd = os.getcwd()
         os.chdir(herd_root)
         args = ['tar', 'czf', 'bittornado.tar.gz', 'BitTornado']
-        print "Executing", " ".join(args)
+        log.info("Executing: " + " ".join(args))
         subprocess.call(args)
         os.chdir(cwd)
     pool = eventlet.GreenPool(100)
     threads = []
+    remainingHosts = hosts      
     for host in hosts:
         threads.append(pool.spawn(transfer, host, torrent_file, remote_file, opts['retry']))
     for thread in threads:
-        thread.wait()
+        host = thread.wait()
+        remainingHosts.remove(host)
+        log.info("Done: %-6s Remaining: %s" % (host, remainingHosts))
     os.unlink(torrent_file)
     try:
         os.unlink(opts['data_file'])
     except OSError:
         pass
-    print "Finished, took %.2f seconds." % (time.time() - start)
+    log.info("Finished, took %.2f seconds." % (time.time() - start))
 
 
 def transfer(host, local_file, remote_target, retry=0):
@@ -95,20 +109,19 @@ def transfer(host, local_file, remote_target, retry=0):
         scp(host, bittornado_tgz, '%s/bittornado.tar.gz' % rp)
         ssh(host, "cd %s; tar zxvf bittornado.tar.gz > /dev/null" % rp)
         scp(host, murderclient_py, '%s/murder_client.py' % rp)
-    print "Copying %s to %s:%s" % (local_file, host, remote_file)
+    log.info("Copying %s to %s:%s" % (local_file, host, remote_file))
     scp(host, local_file, remote_file)
     command = 'python %s/murder_client.py peer %s %s' % (rp, remote_file, remote_target)
-    print "running \"%s\" on %s" %  (command, host)
+    log.info("running \"%s\" on %s" %  (command, host))
     result = ssh(host, command)
     ssh(host, 'rm %s' % remote_file)
-    if result == 0:
-        print "%s complete" % host
-    else:
-        print "%s FAILED with code %s" % (host, result)
+    if result != 0:
+        log.info("%s FAILED with code %s" % (host, result))
         while retry != 0:
             retry = retry - 1
-            print "retrying on %s" % host
+            log.info("retrying on %s" % host)
             transfer(host, local_file, remote_target, 0)
+    return host
 
 
 def ssh(host, command):
@@ -156,7 +169,13 @@ def local_ip():
 def  herdmain():
     if not os.path.exists(opts['hosts']):
         sys.exit('ERROR: hosts file "%s" does not exist' % opts['hosts'])
-    hosts = [line.strip() for line in open(opts['hosts'], 'r') if not re.match("^#", line[0])]
+    hosts = [line.strip() for line in open(opts['hosts'], 'r')]
+    # filter out comments and empty lines
+    hosts = [host for host in hosts if not re.match("^#", host) and not host == '']
+    # handles duplicates
+    hosts = list(set(hosts))
+    log.info("Running with options: %s" % opts)
+    log.info("Running for hosts: %s" % hosts)
     run(opts['local-file'], opts['remote-file'], hosts)
 
 herdmain()
