@@ -19,7 +19,9 @@ parser.add_argument('remote-file',
                     help="Remote file destination")
 
 parser.add_argument('hosts',
-                    help="File containing list of hosts")
+                    help="File containing list of hosts",
+                    default='',
+                    nargs='?')
 
 parser.add_argument('--retry',
                     default=0,
@@ -42,6 +44,10 @@ parser.add_argument('--data-file',
 parser.add_argument('--log-dir',
                     default='/tmp/herd',
                     help="Path to the directory for murder logs")
+
+parser.add_argument('--hostlist',
+                    default=False,
+                    help="Comma separated list of hots")
 
 opts = vars(parser.parse_args())
 
@@ -167,11 +173,15 @@ def local_ip():
 
 
 def  herdmain():
-    if not os.path.exists(opts['hosts']):
+    if not os.path.exists(opts['hosts']) and opts['hostlist'] is False:
         sys.exit('ERROR: hosts file "%s" does not exist' % opts['hosts'])
-    hosts = [line.strip() for line in open(opts['hosts'], 'r')]
-    # filter out comments and empty lines
-    hosts = [host for host in hosts if not re.match("^#", host) and not host == '']
+
+    if opts['hosts']:
+        hosts = [line.strip() for line in open(opts['hosts'], 'r')]
+        # filter out comments and empty lines
+        hosts = [host for host in hosts if not re.match("^#", host) and not host == '']
+    else:
+        hosts = opts['hostlist'].split(',')
     # handles duplicates
     hosts = list(set(hosts))
     log.info("Running with options: %s" % opts)
