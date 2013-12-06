@@ -67,7 +67,7 @@ ch.setFormatter(formatter)
 # add the handlers to the log
 log.addHandler(ch)
 
-herd_root = os.path.dirname(__file__)
+herd_root = os.path.dirname(os.path.realpath(__file__))
 bittornado_tgz = os.path.join(herd_root, 'bittornado.tar.gz')
 murderclient_py = os.path.join(herd_root, 'murder_client.py')
 
