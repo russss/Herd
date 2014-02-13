@@ -179,8 +179,8 @@ def run_with_opts(local_file, remote_file, hosts='', retry=0, port=8998,
     opts['hosts'] = hosts
     opts['retry'] = retry
     opts['port'] = port
-    opts['remote-path'] = remote_path
-    opts['data-file'] = data_file
+    opts['remote_path'] = remote_path
+    opts['data_file'] = data_file
     opts['hostlist'] = hostlist
     herdmain()
 
