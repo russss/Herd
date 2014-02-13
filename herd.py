@@ -171,7 +171,8 @@ def herdmain():
     run(opts['local-file'], opts['remote-file'], hosts, opts)
 
 def run_with_opts(local_file, remote_file, hosts='', retry=0, port=8998,
-                  remote_path='/tmp/herd', data_file='./data', hostlist=False):
+                  remote_path='/tmp/herd', data_file='./data',
+                  log_dir='tmp/herd', hostlist=False):
     """Can include herd into existing python easier."""
     global opts
     opts['local-file'] = local_file
@@ -181,6 +182,7 @@ def run_with_opts(local_file, remote_file, hosts='', retry=0, port=8998,
     opts['port'] = port
     opts['remote_path'] = remote_path
     opts['data_file'] = data_file
+    opts['log_dir'] = log_dir
     opts['hostlist'] = hostlist
     herdmain()
 
