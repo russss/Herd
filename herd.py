@@ -110,6 +110,9 @@ def ssh(host, command):
               'a') as log:
         result = subprocess.call([
             'ssh', '-o UserKnownHostsFile=/dev/null',
+            '-o ConnectTimeout=300',
+            '-o ServerAliveInterval=60',
+            '-o TCPKeepAlive=yes',
             '-o LogLevel=quiet',
             '-o StrictHostKeyChecking=no',
             host, command], stdout=log,
