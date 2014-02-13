@@ -82,7 +82,7 @@ def transfer(host, local_file, remote_target, retry=0):
     file_name = os.path.basename(local_file)
     remote_file = '%s/%s' % (rp, file_name)
     if ssh(host, 'test -d %s/BitTornado' % rp) != 0:
-        ssh(host, "mkdir %s" % rp)
+        ssh(host, "mkdir -p %s" % rp)
         scp(host, bittornado_tgz, '%s/bittornado.tar.gz' % rp)
         ssh(host, "cd %s; tar zxvf bittornado.tar.gz > /dev/null" % rp)
         scp(host, murderclient_py, '%s/murder_client.py' % rp)
@@ -172,7 +172,7 @@ def herdmain():
 
 def run_with_opts(local_file, remote_file, hosts='', retry=0, port=8998,
                   remote_path='/tmp/herd', data_file='./data',
-                  log_dir='tmp/herd', hostlist=False):
+                  log_dir='/tmp/herd', hostlist=False):
     """Can include herd into existing python easier."""
     global opts
     opts['local-file'] = local_file
