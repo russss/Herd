@@ -12,11 +12,11 @@ import time
 from eventlet.green import socket
 from eventlet.green import subprocess
 
-opts = {}
 murder_client = eventlet.import_patched('murder_client')
 bttrack = eventlet.import_patched('BitTornado.BT1.track')
 makemetafile = eventlet.import_patched('BitTornado.BT1.makemetafile')
 
+opts = {}
 log = logging.getLogger('herd')
 log.setLevel(logging.DEBUG)
 # create console handler with a higher log level
