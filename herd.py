@@ -2,19 +2,18 @@
 import argparse
 import eventlet
 import logging
-import os
-import random
-import re
+import threading
 import socket
-import sys
-import tempfile
-import time
-from eventlet.green import socket
-from eventlet.green import subprocess
+import subprocess
+#from eventlet.green import socket
+#from eventlet.green import subprocess
+import murder_client as murder_client
+import BitTornado.BT1.track as bttrack
+import BitTornado.BT1.makemetafile as makemetafile
 
-murder_client = eventlet.import_patched('murder_client')
-bttrack = eventlet.import_patched('BitTornado.BT1.track')
-makemetafile = eventlet.import_patched('BitTornado.BT1.makemetafile')
+#murder_client = eventlet.import_patched('murder_client')
+#bttrack = eventlet.import_patched('BitTornado.BT1.track')
+#makemetafile = eventlet.import_patched('BitTornado.BT1.makemetafile')
 
 opts = {}
 log = logging.getLogger('herd')
@@ -37,7 +36,8 @@ murderclient_py = os.path.join(herd_root, 'murder_client.py')
 def run(local_file, remote_file, hosts):
     start = time.time()
     log.info("Spawning tracker...")
-    eventlet.spawn(track)
+    t = threading.Thread(target=track)
+    t.start()
     eventlet.sleep(1)
 
     if opts['torrent'] and os.path.exists(opts['torrent']):
@@ -57,19 +57,21 @@ def run(local_file, remote_file, hosts):
         log.info("Executing: " + " ".join(args))
         subprocess.call(args)
         os.chdir(cwd)
-    pool = eventlet.GreenPool(100)
+    #pool = eventlet.GreenPool(100)
     threads = []
-    remainingHosts = hosts
+    #remainingHosts = hosts
     for host in hosts:
-        threads.append(pool.spawn(transfer, host, torrent_file, remote_file,
-                                  opts['retry']))
-    for thread in threads:
-        host = thread.wait()
-        remainingHosts.remove(host)
-        log.info("Done: %-6s Remaining: %s" % (host, remainingHosts))
-
-    if opts['keep_torrent'] == False:
-        os.unlink(torrent_file)
+        td = threading.Thread(target=transfer, args=(host, torrent_file, remote_file, opts['retry']))
+        td.start()
+        threads.append(td)
+        #threads.append(pool.spawn(transfer, host, torrent_file, remote_file,
+        #                          opts['retry']))
+    #for thread in threads:
+     #   host = thread.wait()
+     #   remainingHosts.remove(host)
+     #   log.info("Done: %-6s Remaining: %s" % (host, remainingHosts))
+    [ td.join() for td in threads ]
+    os.unlink(torrent_file)
     try:
         os.unlink(opts['data_file'])
     except OSError:
