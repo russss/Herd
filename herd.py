@@ -70,7 +70,7 @@ def run(local_file, remote_file, hosts):
      #   host = thread.wait()
      #   remainingHosts.remove(host)
      #   log.info("Done: %-6s Remaining: %s" % (host, remainingHosts))
-    [ td.join() for td in threads ]
+    [td.join() for td in threads]
     os.unlink(torrent_file)
     try:
         os.unlink(opts['data_file'])
