@@ -31,24 +31,23 @@ log.addHandler(ch)
 herd_root = os.path.dirname(os.path.realpath(__file__))
 bittornado_tgz = os.path.join(herd_root, 'bittornado.tar.gz')
 murderclient_py = os.path.join(herd_root, 'murder_client.py')
-
+herd_py = os.path.join(herd_root, 'herd.py')
 
 def run(local_file, remote_file, hosts):
     start = time.time()
     log.info("Spawning tracker...")
     t = threading.Thread(target=track)
+    t.daemon = True
     t.start()
-    eventlet.sleep(1)
-
-    if opts['torrent'] and os.path.exists(opts['torrent']):
-        torrent_file = opts['torrent']
-    else:
-        local_host = (local_ip(), opts['port'])
-        log.info("Creating torrent (host %s:%s)..." % local_host)
-        torrent_file = mktorrent(local_file, '%s:%s' % local_host)
-
+    #eventlet.sleep(1)
+    local_host = (local_ip(), opts['port'])
+    log.info("Creating torrent (host %s:%s)..." % local_host)
+    torrent_file = mktorrent(local_file, '%s:%s' % local_host)
     log.info("Seeding %s" % torrent_file)
-    eventlet.spawn(seed, torrent_file, local_file)
+    #eventlet.spawn(seed, torrent_file, local_file)
+    s = threading.Thread(target=seed, args=(torrent_file, local_file,))
+    s.daemon = True
+    s.start()
     log.info("Transferring")
     if not os.path.isfile(bittornado_tgz):
         cwd = os.getcwd()
@@ -72,10 +71,15 @@ def run(local_file, remote_file, hosts):
      #   log.info("Done: %-6s Remaining: %s" % (host, remainingHosts))
     [td.join() for td in threads]
     os.unlink(torrent_file)
+    #s._Thread__stop()
+    #s._Thread__delete()
     try:
         os.unlink(opts['data_file'])
     except OSError:
         pass
+    # cleanup
+    for host in hosts:
+        ssh(host, 'rm %s' % (opts['remote_path'] + '/' + os.path.basename(torrent_file)))
     log.info("Finished, took %.2f seconds." % (time.time() - start))
 
 
@@ -88,14 +92,20 @@ def transfer(host, local_file, remote_target, retry=0):
         scp(host, bittornado_tgz, '%s/bittornado.tar.gz' % rp)
         ssh(host, "cd %s; tar zxvf bittornado.tar.gz > /dev/null" % rp)
         scp(host, murderclient_py, '%s/murder_client.py' % rp)
+        scp(host, herd_py, '%s/herd.py' % rp)
     log.info("Copying %s to %s:%s" % (local_file, host, remote_file))
     scp(host, local_file, remote_file)
     command = 'python %s/murder_client.py peer %s %s' % (rp, remote_file,
                                                          remote_target)
     log.info("running \"%s\" on %s", command, host)
     result = ssh(host, command)
-    ssh(host, 'rm %s' % remote_file)
-    if result != 0:
+    if result == 0:
+	cmd = 'python %s/herd.py %s %s --seed True' % (rp, remote_file, remote_target)
+        s = threading.Thread(target=ssh, args=(host, cmd,))
+        s.daemon = True
+        s.start()
+    #ssh(host, 'rm %s' % remote_file) 
+    else:
         log.info("%s FAILED with code %s" % (host, result))
         while retry != 0:
             retry = retry - 1
@@ -227,5 +237,10 @@ if __name__ == '__main__':
                         default=False,
                         help="Comma separated list of hots")
 
+    parser.add_argument('--seed', default=False, help="Seed local file from torrent")
+
     opts = vars(parser.parse_args())
-    herdmain()
+    if opts['seed']:
+        seed(opts['local-file'],opts['remote-file'])
+    else:
+        herdmain()
