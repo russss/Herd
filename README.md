@@ -22,7 +22,7 @@ Herd needs Python > 2.5, argparse,  and eventlet (on the source system only). Al
 are shipped with it. To install eventlet, you can just do:
 
     easy_install eventlet
-    
+
 On CentOS:
 
     yum install python-eventlet
@@ -40,8 +40,17 @@ Create a file hosts.dat with a list of the hosts you want to copy to, and:
 
     /path/to/herd.py ./myfile.tar.gz /path/to/destination.tar.gz hosts.dat
 
+## Python Integration
+
+Herd can now be imported as a python module.  This makes integration into existing projects
+much more bueno.  One would simply need to:
+
+    import herd
+    herd.run_with_opts('localfile', 'remotefile', hostlist='server1,server2')
+
 ## Credits
 
 * [Russ Garrett](http://github.com/russss)
 * [Laurie Denness](http://github.com/lozzd)
+* [Nate House](https://github.com/naterh)
 * [Sam Gleske](http://github.com/samrocketman)
