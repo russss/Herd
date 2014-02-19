@@ -1,9 +1,9 @@
 # Written by Bram Cohen
 # see LICENSE.txt for license information
 
-from BitTornado.bitfield import Bitfield
+from herd.BitTornado.bitfield import Bitfield
 from sha import sha
-from BitTornado.clock import clock
+from herd.BitTornado.clock import clock
 from traceback import print_exc
 from random import randrange
 try:
@@ -65,8 +65,8 @@ class fakeflag:
 
 
 class StorageWrapper:
-    def __init__(self, storage, request_size, hashes, 
-            piece_size, finished, failed, 
+    def __init__(self, storage, request_size, hashes,
+            piece_size, finished, failed,
             statusfunc = dummy_status, flag = fakeflag(), check_hashes = True,
             data_flunked = lambda x: None, backfunc = None,
             config = {}, unpauseflag = fakeflag(True) ):
@@ -84,7 +84,7 @@ class StorageWrapper:
         self.backfunc = backfunc
         self.config = config
         self.unpauseflag = unpauseflag
-        
+
         self.alloc_type = config.get('alloc_type','normal')
         self.double_check = config.get('double_check', 0)
         self.triple_check = config.get('triple_check', 0)
@@ -166,14 +166,14 @@ class StorageWrapper:
             statusfunc = self.statusfunc
         self.initialize_status = statusfunc
         self.initialize_next = None
-            
+
         self.backfunc(self._initialize)
 
     def _initialize(self):
         if not self.unpauseflag.isSet():
             self.backfunc(self._initialize, 1)
             return
-        
+
         if self.initialize_next:
             x = self.initialize_next()
             if x is None:
@@ -254,7 +254,7 @@ class StorageWrapper:
             return None
         if not self.check_list:
             return None
-        
+
         i = self.check_list.pop(0)
         if not self.check_hashes:
             self._markgot(i, i)
@@ -338,7 +338,7 @@ class StorageWrapper:
         self.tomove -= 1
         return (self.tomove / self.out_of_place)
 
-        
+
     def init_alloc(self):
         if self.flag.isSet():
             return False
@@ -378,7 +378,7 @@ class StorageWrapper:
     def allocfunc(self):
         if self.flag.isSet():
             return None
-        
+
         if self.blocked_moveout:
             self.bgalloc_active = True
             n = self._allocfunc()
@@ -598,9 +598,9 @@ class StorageWrapper:
                 self.blocked_moveout.add(index)
             else:
                 self.blocked_moveout.remove(index)
-                    
+
         return oldpos
-            
+
     def _clear_space(self, index):
         h = self.holes.pop(0)
         n = h
@@ -647,7 +647,7 @@ class StorageWrapper:
 
     def piece_came_in(self, index, begin, piece, source = None):
         assert not self.have[index]
-        
+
         if not self.places.has_key(index):
             while self._clear_space(index):
                 pass
@@ -667,10 +667,10 @@ class StorageWrapper:
                     self.failed_pieces[index][None] = 1
             old.release()
         self.download_history.setdefault(index,{})[begin] = source
-        
+
         if not self._write_to_buffer(index, begin, piece):
             return True
-        
+
         self.amount_obtained += len(piece)
         self.dirty.setdefault(index,[]).append((begin, len(piece)))
         self.numactive[index] -= 1
@@ -682,7 +682,7 @@ class StorageWrapper:
 
         if self.inactive_requests[index] or self.numactive[index]:
             return True
-        
+
         del self.dirty[index]
         if not self._flush_buffer(index):
             return True
@@ -710,7 +710,7 @@ class StorageWrapper:
                 if culprit is not None:
                     culprit.failed(index, bump = True)
                 del self.failed_pieces[index] # found the culprit already
-            
+
             return False
 
         self.have[index] = True
@@ -838,7 +838,7 @@ class StorageWrapper:
                     inactive += nl
                 self.amount_inactive -= inactive
                 self.amount_obtained -= length - inactive
-                
+
             if self.blocked[i] and not new_blocked[i]:
                 length = self._piecelen(i)
                 self.amount_desired += length
@@ -957,7 +957,7 @@ class StorageWrapper:
                 _partials = data['partials']
                 assert len(_partials) % 2 == 0
                 _partials = [_partials[x:x+2] for x in xrange(0,len(_partials),2)]
-                
+
             for index, place in _places:
                 if place not in valid_places:
                     continue
@@ -1040,6 +1040,6 @@ class StorageWrapper:
         self.amount_inactive = amount_inactive
         self.amount_left = amount_left
         self.inactive_requests = inactive_requests
-                
+
         return restored_partials
-    
+

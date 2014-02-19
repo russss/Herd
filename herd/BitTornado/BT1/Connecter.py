@@ -1,8 +1,8 @@
 # Written by Bram Cohen
 # see LICENSE.txt for license information
 
-from BitTornado.bitfield import Bitfield
-from BitTornado.clock import clock
+from herd.BitTornado.bitfield import Bitfield
+from herd.BitTornado.clock import clock
 from binascii import b2a_hex
 
 try:
@@ -17,7 +17,7 @@ def toint(s):
     return long(b2a_hex(s), 16)
 
 def tobinary(i):
-    return (chr(i >> 24) + chr((i >> 16) & 0xFF) + 
+    return (chr(i >> 24) + chr((i >> 16) & 0xFF) +
         chr((i >> 8) & 0xFF) + chr(i & 0xFF))
 
 CHOKE = chr(0)
@@ -92,13 +92,13 @@ class Connection:
                 self.just_unchoked = clock()
 
     def send_request(self, index, begin, length):
-        self._send_message(REQUEST + tobinary(index) + 
+        self._send_message(REQUEST + tobinary(index) +
             tobinary(begin) + tobinary(length))
         if DEBUG:
             print 'sent request: '+str(index)+': '+str(begin)+'-'+str(begin+length)
 
     def send_cancel(self, index, begin, length):
-        self._send_message(CANCEL + tobinary(index) + 
+        self._send_message(CANCEL + tobinary(index) +
             tobinary(begin) + tobinary(length))
         if DEBUG:
             print 'sent cancel: '+str(index)+': '+str(begin)+'-'+str(begin+length)
@@ -163,7 +163,7 @@ class Connection:
         if self.just_unchoked:
             self.connecter.ratelimiter.ping(clock() - self.just_unchoked)
             self.just_unchoked = 0
-    
+
 
 
 
@@ -206,7 +206,7 @@ class Connecter:
         if conn.next_upload is None and (conn.partial_message is not None
                or len(conn.upload.buffer) > 0):
             self.ratelimiter.queue(conn)
-            
+
     def got_piece(self, i):
         for co in self.connections.values():
             co.send_have(i)
@@ -218,7 +218,7 @@ class Connecter:
             connection.close()
             return
         c.got_anything = True
-        if (t in [CHOKE, UNCHOKE, INTERESTED, NOT_INTERESTED] and 
+        if (t in [CHOKE, UNCHOKE, INTERESTED, NOT_INTERESTED] and
                 len(message) != 1):
             connection.close()
             return
@@ -257,7 +257,7 @@ class Connecter:
             if i >= self.numpieces:
                 connection.close()
                 return
-            c.got_request(i, toint(message[5:9]), 
+            c.got_request(i, toint(message[5:9]),
                 toint(message[9:]))
         elif t == CANCEL:
             if len(message) != 13:
@@ -267,7 +267,7 @@ class Connecter:
             if i >= self.numpieces:
                 connection.close()
                 return
-            c.upload.got_cancel(i, toint(message[5:9]), 
+            c.upload.got_cancel(i, toint(message[5:9]),
                 toint(message[9:]))
         elif t == PIECE:
             if len(message) <= 9:

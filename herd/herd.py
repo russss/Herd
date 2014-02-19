@@ -12,7 +12,7 @@ import time
 import argparse
 import BitTornado.BT1.track as bttrack
 import BitTornado.BT1.makemetafile as makemetafile
-import murder_client
+import murder_client as murder_client
 
 
 opts = {}
@@ -193,7 +193,8 @@ def run_with_opts(local_file, remote_file, hosts='', retry=0, port=8998,
     opts['hostlist'] = hostlist
     herdmain()
 
-if __name__ == '__main__':
+
+def entry_point():
     parser = argparse.ArgumentParser()
     parser.add_argument('local-file',
                         help='Local file to upload')
@@ -242,3 +243,6 @@ if __name__ == '__main__':
         seed(opts['local-file'], opts['remote-file'])
     else:
         herdmain()
+
+if __name__ == '__main__':
+    entry_point()

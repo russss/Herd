@@ -7,7 +7,7 @@ from os import listdir
 from sha import sha
 from copy import copy
 from string import strip
-from BitTornado.bencode import bencode
+from herd.BitTornado.bencode import bencode
 from btformats import check_info
 from threading import Event
 from time import time
@@ -57,7 +57,7 @@ def print_announcelist_details():
     print ('')
     print ('    httpseeds = optional list of http-seed URLs, in the format:')
     print ('            url[|url...]')
-    
+
 def make_meta_file(file, url, params = {}, flag = Event(),
                    progress = lambda x: None, progress_percent = 1):
     if params.has_key('piece_size_pow2'):
@@ -72,7 +72,7 @@ def make_meta_file(file, url, params = {}, flag = Event(),
             f = a + '.torrent'
         else:
             f = join(a, b + '.torrent')
-            
+
     if piece_len_exp == 0:  # automatic
         size = calcsize(file)
         if   size > 8L*1024*1024*1024:   # > 8 gig =
@@ -98,17 +98,17 @@ def make_meta_file(file, url, params = {}, flag = Event(),
         encoding = ENCODING
     if not encoding:
         encoding = 'ascii'
-    
+
     info = makeinfo(file, piece_length, encoding, flag, progress, progress_percent)
     if flag.isSet():
         return
     check_info(info)
     h = open(f, 'wb')
     data = {'info': info, 'announce': strip(url), 'creation date': long(time())}
-    
+
     if params.has_key('comment') and params['comment']:
         data['comment'] = params['comment']
-        
+
     if params.has_key('real_announce_list'):    # shortcut for progs calling in from outside
         data['announce-list'] = params['real_announce_list']
     elif params.has_key('announce_list') and params['announce_list']:
@@ -116,12 +116,12 @@ def make_meta_file(file, url, params = {}, flag = Event(),
         for tier in params['announce_list'].split('|'):
             l.append(tier.split(','))
         data['announce-list'] = l
-        
+
     if params.has_key('real_httpseeds'):    # shortcut for progs calling in from outside
         data['httpseeds'] = params['real_httpseeds']
     elif params.has_key('httpseeds') and params['httpseeds']:
         data['httpseeds'] = params['httpseeds'].split('|')
-        
+
     h.write(bencode(data))
     h.close()
 
@@ -177,7 +177,7 @@ def makeinfo(file, piece_length, encoding, flag, progress, progress_percent=1):
                 done += a
                 pos += a
                 totalhashed += a
-                
+
                 if done == piece_length:
                     pieces.append(sh.digest())
                     done = 0
@@ -190,7 +190,7 @@ def makeinfo(file, piece_length, encoding, flag, progress, progress_percent=1):
         if done > 0:
             pieces.append(sh.digest())
         return {'pieces': ''.join(pieces),
-            'piece length': piece_length, 'files': fs, 
+            'piece length': piece_length, 'files': fs,
             'name': uniconvert(split(file)[1], encoding) }
     else:
         size = getsize(file)
@@ -210,8 +210,8 @@ def makeinfo(file, piece_length, encoding, flag, progress, progress_percent=1):
             else:
                 progress(min(piece_length, size - p))
         h.close()
-        return {'pieces': ''.join(pieces), 
-            'piece length': piece_length, 'length': size, 
+        return {'pieces': ''.join(pieces),
+            'piece length': piece_length, 'length': size,
             'name': uniconvert(split(file)[1], encoding) }
 
 def subfiles(d):
@@ -242,7 +242,7 @@ def completedir(dir, url, params = {}, flag = Event(),
     for f in files:
         if f[-len(ext):] != ext and (f + ext) not in files:
             togen.append(join(dir, f))
-        
+
     total = 0
     for i in togen:
         total += calcsize(i)
