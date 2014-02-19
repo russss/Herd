@@ -195,6 +195,7 @@ def run_with_opts(local_file, remote_file, hosts='', retry=0, port=8998,
 
 
 def entry_point():
+    global opts
     parser = argparse.ArgumentParser()
     parser.add_argument('local-file',
                         help='Local file to upload')
