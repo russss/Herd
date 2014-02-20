@@ -10,16 +10,11 @@ setup(
     url='http://github.com/naterh/Herd',
     description='Torrent distribution.',
     long_description=open('README.md').read(),
-    install_requires=["argparse"],
+    install_requires=[],
     entry_points={
         'console_scripts': [
             'herd = herd.herd:entry_point',
             ],
         },
-    #include_package_data = True,
-    #package_data = {
-     #   '': ['*.tar.gz'],
-    #},
-    #zip_safe=True,
     data_files=[('herd', ['herd/bittornado.tar.gz'])]
 )

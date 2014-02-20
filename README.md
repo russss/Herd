@@ -1,11 +1,18 @@
 ## About
 
-Herd is a single-command Bittorrent-based file distribution system, based on Twitter's Murder.
-It was designed for pushing code out to a number of production systems. You can probably use
-it for other things.
+Horde is a torrent-based file distribution system, forked from [Herd](https://github.com/russss/Herd)
+and based on [Murder](https://github.com/lg/murder).
+It allows for quick and easy transfer of small and large files. You can probably use
+it for other things too.
 
-Herd requires no extra Python modules on the destination system as it ships around
+Horde requires no extra modules on Python and includes everything needed for destinations including
 its own (lightly modified) copy of BitTornado.
+
+## Differences from Herd
+
+[Herd](https://github.com/russss/Herd) is a command line python client interface that uses eventlet
+and has to be ran from the command line.  This project also has limitations around large file transfers,
+peer seeding and python integration.
 
 ## Differences from Murder
 
@@ -13,40 +20,52 @@ its own (lightly modified) copy of BitTornado.
 distribution system. It's pretty dependent on Capistrano and requires that a separate
 tracker process is started before you run the deploy task.
 
-Herd is run by a single command, which spawns its own tracker in the background. This
-makes it really trivial to integrate into whatever deployment system you like.
+Horde spawns its own tracker in the background which makes it really trivial to integrate into whatever
+deployment system you like.
 
 ## Requirements
 
-Herd needs Python > 2.5, argparse,  and eventlet (on the source system only). All other libraries
-are shipped with it. To install eventlet, you can just do:
+Horde needs Python > 2.5 and argparse.  If your using python 2.7+ nothing else is needed as argparse
+was added to the standard library.
 
-    easy_install eventlet
+Argparse(if needed) can be installed with easy_install or pip:
 
-On CentOS:
-
-    yum install python-eventlet
-
-Argparse can be found with easy_install as well:
-
+    pip install argparse
     easy_install argparse
+
+Horde also currently requires that key based passwordless authentication is enabled on all of your
+target destinations.
+
+## Install
+
+git clone https://github.com/naterh/Horde
+cd Horde && sudo python setup.py install
+
+or
+
+sudo pip install horde
 
 ## Usage
 
-Herd assumes that you're running as a user which has passwordless SSH access,
-with the same account, to all the machines you need to copy to.
+With a hosts file that includes a list of the hosts you want to copy to:
 
-Create a file hosts.dat with a list of the hosts you want to copy to, and:
+    horde myfile.tar.gz /path/to/destination.tar.gz hosts_file
 
-    /path/to/herd.py ./myfile.tar.gz /path/to/destination.tar.gz hosts.dat
+Using a hosts list that is a single string comma separated:
+
+    horde myfile.tar.gz /path/to/destination.tar.gz --hostlist "host1,host2,host3"
+
+More options:
+
+    horde --help
 
 ## Python Integration
 
-Herd can now be imported as a python module.  This makes integration into existing projects
+Horde can also be imported as a python module.  This makes integration into existing projects
 much more bueno.  One would simply need to:
 
-    import herd
-    herd.run_with_opts('localfile', 'remotefile', hostlist='server1,server2')
+    import horde.horde as horde
+    horde.run_with_opts('localfile', 'remotefile', hostlist='server1,server2')
 
 ## Credits
 
