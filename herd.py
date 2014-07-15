@@ -47,7 +47,16 @@ parser.add_argument('--log-dir',
 
 parser.add_argument('--hostlist',
                     default=False,
-                    help="Comma separated list of hots")
+                    help="Comma separated list of hosts")
+
+parser.add_argument('--torrent',
+                    default=False,
+                    help="Location of the torrent file you want to seed")
+
+parser.add_argument('--keep-torrent',
+                    default=False,
+                    help="Don't remove the torrent file on exit",
+                    action='store_true')
 
 opts = vars(parser.parse_args())
 
@@ -71,14 +80,19 @@ herd_root = os.path.dirname(os.path.realpath(__file__))
 bittornado_tgz = os.path.join(herd_root, 'bittornado.tar.gz')
 murderclient_py = os.path.join(herd_root, 'murder_client.py')
 
-def run(local_file, remote_file, hosts):
+def run(local_file, remote_file, hosts, opts):
     start = time.time()
     log.info("Spawning tracker...")
     eventlet.spawn(track)
     eventlet.sleep(1)
-    local_host = (local_ip(), opts['port'])
-    log.info("Creating torrent (host %s:%s)..." % local_host)
-    torrent_file = mktorrent(local_file, '%s:%s' % local_host)
+
+    if opts['torrent'] and os.path.exists(opts['torrent']):
+        torrent_file = opts['torrent']
+    else:
+        local_host = (local_ip(), opts['port'])
+        log.info("Creating torrent (host %s:%s)..." % local_host)
+        torrent_file = mktorrent(local_file, '%s:%s' % local_host)
+
     log.info("Seeding %s" % torrent_file)
     eventlet.spawn(seed, torrent_file, local_file)
     log.info("Transferring")
@@ -98,7 +112,9 @@ def run(local_file, remote_file, hosts):
         host = thread.wait()
         remainingHosts.remove(host)
         log.info("Done: %-6s Remaining: %s" % (host, remainingHosts))
-    os.unlink(torrent_file)
+
+    if opts['keep_torrent'] == False:
+        os.unlink(torrent_file)
     try:
         os.unlink(opts['data_file'])
     except OSError:
@@ -186,6 +202,6 @@ def  herdmain():
     hosts = list(set(hosts))
     log.info("Running with options: %s" % opts)
     log.info("Running for hosts: %s" % hosts)
-    run(opts['local-file'], opts['remote-file'], hosts)
+    run(opts['local-file'], opts['remote-file'], hosts, opts)
 
 herdmain()
