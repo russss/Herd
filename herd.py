@@ -85,7 +85,7 @@ if __name__ == '__main__':
     murderclient_py = os.path.join(herd_root, 'murder_client.py')
 
 
-def get_random_open_port(port,interface=""):
+def get_random_open_port(port, interface=""):
     """
         Arguments:
             port - can be a single number or a number range with a hyphen as a string
@@ -102,8 +102,8 @@ def get_random_open_port(port,interface=""):
     """
     regex=re.compile(r'[0-9]+-{0,1}[0-9]*')
     #if port is an integer then convert to string
-    if isinstance(port,int):
-        port=str(port)
+    if isinstance(port, int):
+        port = str(port)
     #Do some error checking on the input.
     if not isinstance(port, str):
         raise TypeError("port not of type str.")
@@ -120,20 +120,20 @@ def get_random_open_port(port,interface=""):
         #Since we're given a single port don't even try to test it.  Just return the value.
         return ports[0]
     else:
-        port=random.randrange(ports[0],ports[1]+1)
-        count=0
-        found=False
+        port = random.randrange(ports[0],ports[1]+1)
+        count = 0
+        found = False
         while not found:
             try:
                 #test the socket for a listening service
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.bind((interface, port))
-                found=True
+                found = True
             except socket.error,e:
                 #Generate another port to be tested because the last one had a listening socket.
-                port=random.randrange(ports[0],ports[1]+1)
+                port = random.randrange(ports[0], ports[1]+1)
             s.close()
-            count+=1
+            count += 1
             #avoid an infinite loop
             if count > 10000:
                 break
