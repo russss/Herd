@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+import argparse
 import logging
 import os
+import random
 import re
 import socket
 import subprocess
@@ -8,8 +10,6 @@ import sys
 import tempfile
 import threading
 import time
-
-import argparse
 import BitTornado.BT1.track as bttrack
 import BitTornado.BT1.makemetafile as makemetafile
 import murder_client as murder_client
@@ -29,6 +29,63 @@ herd_root = os.path.dirname(os.path.realpath(__file__))
 bittornado_tgz = os.path.join(herd_root, 'bittornado.tar.gz')
 murderclient_py = os.path.join(herd_root, 'murder_client.py')
 herd_py = os.path.join(herd_root, 'herd.py')
+
+
+def get_random_open_port(port, interface=""):
+    """
+        Arguments:
+            port - can be a single number or a number range with a hyphen as a string
+            interface - a string representing either a hostname in Internet domain notation or IP
+                address to test binding.  By default a blank value means test a binding for all
+                interfaces.
+        Returns:
+            returns an int between 1 and 65535 based on input port
+
+        If a single port is given as input then it simply returns the port
+
+        If a port range is input then a random port will be returned if there is no
+        Listening socket for that port.
+    """
+    regex=re.compile(r'[0-9]+-{0,1}[0-9]*')
+    #if port is an integer then convert to string
+    if isinstance(port, int):
+        port = str(port)
+    #Do some error checking on the input.
+    if not isinstance(port, str):
+        raise TypeError("port not of type str.")
+    if not regex.match(port):
+        raise ValueError("port str must be a number or a range of numbers between 1 and 65535.")
+    ports = sorted(map(lambda x: int(x), port.split('-')))
+    #Do range checking on the input.
+    if len(ports) == 2 and ( ports[1] > 65535 ):
+        raise ValueError("port range is between 1 and 65535.")
+    elif ports[0] < 1 or ports[0] > 65535:
+        raise ValueError("port range is between 1 and 65535.")
+    #Return a port or a random range.
+    if len(ports) == 1:
+        #Since we're given a single port don't even try to test it.  Just return the value.
+        return ports[0]
+    else:
+        port = random.randrange(ports[0],ports[1]+1)
+        count = 0
+        found = False
+        while not found:
+            try:
+                #test the socket for a listening service
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.bind((interface, port))
+                found = True
+            except socket.error,e:
+                #Generate another port to be tested because the last one had a listening socket.
+                port = random.randrange(ports[0], ports[1]+1)
+            s.close()
+            count += 1
+            #avoid an infinite loop
+            if count > 10000:
+                break
+        if not found:
+            raise socket.error("could not obtain socket from port or port range.")
+        return port
 
 
 def run(local_file, remote_file, hosts):
@@ -216,7 +273,8 @@ def entry_point():
 
     parser.add_argument('--port',
                         default=8998,
-                        help="Port number to run the tracker on")
+                        help="Port number to run the tracker on. Port range " +
+                        "for random port selection also allowed (e.g. 8000-9000).")
 
     parser.add_argument('--remote-path',
                         default='/tmp/herd',
