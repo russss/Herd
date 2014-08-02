@@ -44,3 +44,4 @@ Create a file hosts.dat with a list of the hosts you want to copy to, and:
 
 * [Russ Garrett](http://github.com/russss)
 * [Laurie Denness](http://github.com/lozzd)
+* [Sam Gleske](http://github.com/samrocketman)
