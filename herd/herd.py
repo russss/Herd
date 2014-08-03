@@ -202,7 +202,7 @@ def mktorrent(file_name, tracker):
 
 def track():
     bttrack.track(["--dfile", opts['data_file'], "--port",
-                    get_random_open_port(opts['port'])])
+                    opts['port']])
 
 
 def seed(torrent, local_file):
@@ -232,7 +232,7 @@ def herdmain():
     hosts = list(set(hosts))
     log.info("Running with options: %s" % opts)
     log.info("Running for hosts: %s" % hosts)
-    run(opts['local-file'], opts['remote-file'], hosts, opts)
+    run(opts['local-file'], opts['remote-file'], hosts)
 
 def run_with_opts(local_file, remote_file, hosts='', retry=0, port=8998,
                   remote_path='/tmp/herd', data_file='./data',
@@ -243,7 +243,7 @@ def run_with_opts(local_file, remote_file, hosts='', retry=0, port=8998,
     opts['remote-file'] = remote_file
     opts['hosts'] = hosts
     opts['retry'] = retry
-    opts['port'] = port
+    opts['port'] = get_random_open_port(port)
     opts['remote_path'] = remote_path
     opts['data_file'] = data_file
     opts['log_dir'] = log_dir
@@ -297,6 +297,9 @@ def entry_point():
                         help="Seed local file from torrent")
 
     opts = vars(parser.parse_args())
+
+    #potentially select a random port
+    opts['port'] = get_random_open_port(opts['port'])
 
     if opts['seed']:
         seed(opts['local-file'], opts['remote-file'])
