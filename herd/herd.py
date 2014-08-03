@@ -72,6 +72,11 @@ def get_random_open_port(port, interface=""):
             try:
                 #test the socket for a listening service
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                #The SO_REUSEADDR flag tells the kernel to reuse a local socket in TIME_WAIT
+                #state, without waiting for its natural timeout to expire.  This avoids
+                #an exception "OSError: [Errno 98] Address already in use" because we are
+                #only testing the binding of a socket and not using it for communication.
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 s.bind((interface, port))
                 found = True
             except socket.error,e:
