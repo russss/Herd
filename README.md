@@ -42,6 +42,11 @@ Create a file hosts.dat with a list of the hosts you want to copy to, and:
 
 ## Credits
 
-* [Russ Garrett](http://github.com/russss)
-* [Laurie Denness](http://github.com/lozzd)
-* [Sam Gleske](http://github.com/samrocketman)
+* [Russ Garrett](https://github.com/russss)
+* [Laurie Denness](https://github.com/lozzd)
+* [Sam Gleske](https://github.com/samrocketman)
+* [Paul Sims](https://github.com/chalupaul)
+* [Nandor Sivok](https://github.com/dominis)
+* [Mikael Fridh](https://github.com/frimik)
+* [Sebastian Borza](https://github.com/sebito91)
+* [Patrick Ancillotti](https://github.com/neogenix)
