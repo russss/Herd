@@ -50,7 +50,12 @@ much more bueno.  One would simply need to:
 
 ## Credits
 
-* [Russ Garrett](http://github.com/russss)
-* [Laurie Denness](http://github.com/lozzd)
+* [Russ Garrett](https://github.com/russss)
+* [Laurie Denness](https://github.com/lozzd)
 * [Nate House](https://github.com/naterh)
-* [Sam Gleske](http://github.com/samrocketman)
+* [Sam Gleske](https://github.com/samrocketman)
+* [Paul Sims](https://github.com/chalupaul)
+* [Nandor Sivok](https://github.com/dominis)
+* [Mikael Fridh](https://github.com/frimik)
+* [Sebastian Borza](https://github.com/sebito91)
+* [Patrick Ancillotti](https://github.com/neogenix)

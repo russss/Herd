@@ -14,7 +14,6 @@ import BitTornado.BT1.track as bttrack
 import BitTornado.BT1.makemetafile as makemetafile
 import murder_client as murder_client
 
-
 opts = {}
 log = logging.getLogger('herd')
 log.setLevel(logging.DEBUG)
