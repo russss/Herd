@@ -12,77 +12,6 @@ import time
 from eventlet.green import socket
 from eventlet.green import subprocess
 
- 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('local-file',
-                        help='Local file to upload')
-
-    parser.add_argument('remote-file',
-                        help="Remote file destination")
-
-    parser.add_argument('hosts',
-                        help="File containing list of hosts",
-                        default='',
-                        nargs='?')
-
-    parser.add_argument('--retry',
-                        default=0,
-                        type=int,
-                        help="Number of times to retry in case of failure. " +
-                        "Use -1 to make it retry forever (not recommended)")
-
-    parser.add_argument('--port',
-                        default=8998,
-                        help="Port number to run the tracker on. Port range " +
-                        "for random port selection also allowed (e.g. 8000-9000).")
-
-    parser.add_argument('--remote-path',
-                        default='/tmp/herd',
-                        help="Temporary path to store uploads")
-
-    parser.add_argument('--data-file',
-                        default='./data',
-                        help="Temporary file to store for bittornado.")
-
-    parser.add_argument('--log-dir',
-                        default='/tmp/herd',
-                        help="Path to the directory for murder logs")
-
-    parser.add_argument('--hostlist',
-                        default=False,
-                        help="Comma separated list of hosts")
-
-    parser.add_argument('--torrent',
-                        default=False,
-                        help="Location of the torrent file you want to seed")
-
-    parser.add_argument('--keep-torrent',
-                        default=False,
-                        help="Don't remove the torrent file on exit",
-                        action='store_true')
-
-    opts = vars(parser.parse_args())
-
-
-    murder_client = eventlet.import_patched('murder_client')
-    bttrack = eventlet.import_patched('BitTornado.BT1.track')
-    makemetafile = eventlet.import_patched('BitTornado.BT1.makemetafile')
-
-    log = logging.getLogger('herd')
-    log.setLevel(logging.DEBUG)
-    # create console handler with a higher log level
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    # create formatter and add it to the handlers
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
-    ch.setFormatter(formatter)
-    # add the handlers to the log
-    log.addHandler(ch)
-
-    herd_root = os.path.dirname(os.path.realpath(__file__))
-    bittornado_tgz = os.path.join(herd_root, 'bittornado.tar.gz')
-    murderclient_py = os.path.join(herd_root, 'murder_client.py')
 
 
 def get_random_open_port(port, interface=""):
@@ -237,7 +166,7 @@ def mktorrent(file_name, tracker):
 
 def track():
     bttrack.track(["--dfile", opts['data_file'], "--port",
-                    get_random_open_port(opts['port'])])
+                    opts['port']])
 
 
 def seed(torrent, local_file):
@@ -269,4 +198,76 @@ def  herdmain():
     run(opts['local-file'], opts['remote-file'], hosts, opts)
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('local-file',
+                        help='Local file to upload')
+
+    parser.add_argument('remote-file',
+                        help="Remote file destination")
+
+    parser.add_argument('hosts',
+                        help="File containing list of hosts",
+                        default='',
+                        nargs='?')
+
+    parser.add_argument('--retry',
+                        default=0,
+                        type=int,
+                        help="Number of times to retry in case of failure. " +
+                        "Use -1 to make it retry forever (not recommended)")
+
+    parser.add_argument('--port',
+                        default=8998,
+                        help="Port number to run the tracker on. Port range " +
+                        "for random port selection also allowed (e.g. 8000-9000).")
+
+    parser.add_argument('--remote-path',
+                        default='/tmp/herd',
+                        help="Temporary path to store uploads")
+
+    parser.add_argument('--data-file',
+                        default='./data',
+                        help="Temporary file to store for bittornado.")
+
+    parser.add_argument('--log-dir',
+                        default='/tmp/herd',
+                        help="Path to the directory for murder logs")
+
+    parser.add_argument('--hostlist',
+                        default=False,
+                        help="Comma separated list of hosts")
+
+    parser.add_argument('--torrent',
+                        default=False,
+                        help="Location of the torrent file you want to seed")
+
+    parser.add_argument('--keep-torrent',
+                        default=False,
+                        help="Don't remove the torrent file on exit",
+                        action='store_true')
+
+    opts = vars(parser.parse_args())
+
+    #potentially select a random port
+    opts['port'] = get_random_open_port(opts['port'])
+
+    murder_client = eventlet.import_patched('murder_client')
+    bttrack = eventlet.import_patched('BitTornado.BT1.track')
+    makemetafile = eventlet.import_patched('BitTornado.BT1.makemetafile')
+
+    log = logging.getLogger('herd')
+    log.setLevel(logging.DEBUG)
+    # create console handler with a higher log level
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
+    ch.setFormatter(formatter)
+    # add the handlers to the log
+    log.addHandler(ch)
+
+    herd_root = os.path.dirname(os.path.realpath(__file__))
+    bittornado_tgz = os.path.join(herd_root, 'bittornado.tar.gz')
+    murderclient_py = os.path.join(herd_root, 'murder_client.py')
+
     herdmain()
