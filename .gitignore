@@ -1,3 +1,6 @@
 *.pyc
 *.swp
 bittornado.tar.gz
+Herd.egg-info
+build
+dist
