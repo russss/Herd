@@ -1,13 +1,13 @@
 # Written by John Hoffman
 # see LICENSE.txt for license information
 
-from BitTornado.CurrentRateMeasure import Measure
+from herd.BitTornado.CurrentRateMeasure import Measure
 from random import randint
 from urlparse import urlparse
 from httplib import HTTPConnection
 from urllib import quote
 from threading import Thread
-from BitTornado.__init__ import product_name,version_short
+from herd.BitTornado.__init__ import product_name,version_short
 try:
     True
 except:
@@ -105,7 +105,7 @@ class SingleDownload:
         import encodings.ascii
         import encodings.punycode
         import encodings.idna
-        
+
         self.error = None
         self.received_data = None
         try:
@@ -174,7 +174,7 @@ class SingleDownload:
             self.downloader.peerdownloader.check_complete(self.index)
             self.downloader.gotpiecefunc(self.index)
         return True
-    
+
     def _get_requests(self):
         self.requests = []
         self.request_size = 0L
@@ -217,8 +217,8 @@ class SingleDownload:
             s += ','
         s += str(begin)+'-'+str(begin+length-1)
         return s
-        
-    
+
+
 class HTTPDownloader:
     def __init__(self, storage, picker, rawserver,
                  finflag, errorfunc, peerdownloader,

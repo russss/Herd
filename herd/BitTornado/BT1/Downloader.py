@@ -1,10 +1,10 @@
 # Written by Bram Cohen
 # see LICENSE.txt for license information
 
-from BitTornado.CurrentRateMeasure import Measure
-from BitTornado.bitfield import Bitfield
+from herd.BitTornado.CurrentRateMeasure import Measure
+from herd.BitTornado.bitfield import Bitfield
 from random import shuffle
-from BitTornado.clock import clock
+from herd.BitTornado.clock import clock
 try:
     True
 except:
@@ -13,7 +13,7 @@ except:
 
 EXPIRE_TIME = 60 * 60
 
-class PerIPStats: 	 
+class PerIPStats:
     def __init__(self, ip):
         self.numgood = 0
         self.bad = {}
@@ -74,7 +74,7 @@ class SingleDownload:
         if self.backlog > 50:
             self.backlog = max(50, self.backlog * 0.075)
         return self.backlog
-    
+
     def disconnected(self):
         self.downloader.lost_peer(self)
         if self.have.complete():
@@ -440,7 +440,7 @@ class Downloader:
         if self.endgamemode and not self.downloads: # all peers gone
             self._reset_endgame()
 
-    def _reset_endgame(self):            
+    def _reset_endgame(self):
         self.storage.reset_endgame(self.all_requests)
         self.endgamemode = False
         self.all_requests = []
@@ -481,7 +481,7 @@ class Downloader:
             self.kicked[ip] = id
             self.perip[ip].peerid = id
             self.kickfunc(download.connection)
-        
+
     def try_ban(self, ip):
         if self._check_kicks_ok():
             self.banfunc(ip)
@@ -554,7 +554,7 @@ class Downloader:
                 return
             self.endgamemode = False
             self.endgame_queued_pieces = None
-           
+
         ds = [d for d in self.downloads]
         shuffle(ds)
         for d in ds:

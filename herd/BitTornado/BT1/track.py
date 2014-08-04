@@ -1,18 +1,18 @@
 # Written by Bram Cohen
 # see LICENSE.txt for license information
 
-from BitTornado.parseargs import parseargs, formatDefinitions
-from BitTornado.RawServer import RawServer, autodetect_ipv6, autodetect_socket_style
-from BitTornado.HTTPHandler import HTTPHandler, months, weekdays
-from BitTornado.parsedir import parsedir
+from herd.BitTornado.parseargs import parseargs, formatDefinitions
+from herd.BitTornado.RawServer import RawServer, autodetect_ipv6, autodetect_socket_style
+from herd.BitTornado.HTTPHandler import HTTPHandler, months, weekdays
+from herd.BitTornado.parsedir import parsedir
 from NatCheck import NatCheck
 from T2T import T2TList
-from BitTornado.subnetparse import IP_List, ipv6_to_ipv4, to_ipv4, is_valid_ip, is_ipv4
-from BitTornado.iprangeparse import IP_List as IP_Range_List
-from BitTornado.torrentlistparse import parsetorrentlist
+from herd.BitTornado.subnetparse import IP_List, ipv6_to_ipv4, to_ipv4, is_valid_ip, is_ipv4
+from herd.BitTornado.iprangeparse import IP_List as IP_Range_List
+from herd.BitTornado.torrentlistparse import parsetorrentlist
 from threading import Event, Thread
-from BitTornado.bencode import bencode, bdecode, Bencached
-from BitTornado.zurllib import urlopen, quote, unquote
+from herd.BitTornado.bencode import bencode, bdecode, Bencached
+from herd.BitTornado.zurllib import urlopen, quote, unquote
 from Filter import Filter
 from urlparse import urlparse
 from os import rename, getpid
@@ -20,7 +20,7 @@ from os.path import exists, isfile
 from cStringIO import StringIO
 from traceback import print_exc
 from time import time, gmtime, strftime, localtime
-from BitTornado.clock import clock
+from herd.BitTornado.clock import clock
 from random import shuffle, seed, randrange
 from sha import sha
 from types import StringType, IntType, LongType, ListType, DictType
@@ -29,8 +29,8 @@ from string import lower
 import sys, os
 import signal
 import re
-import BitTornado.__init__
-from BitTornado.__init__ import version, createPeerID
+import herd.BitTornado.__init__
+from herd.BitTornado.__init__ import version, createPeerID
 try:
     True
 except:
@@ -72,7 +72,7 @@ defaults = [
     ('aggregator', '0', 'whether to act as a data aggregator rather than a tracker.  If enabled, may be 1, or <password>; ' +
              'if password is set, then an incoming password is required for access'),
     ('hupmonitor', 0, 'whether to reopen the log file upon receipt of HUP signal'),
-    ('http_timeout', 60, 
+    ('http_timeout', 60,
         'number of seconds to wait before assuming that an http connection has timed out'),
     ('parse_dir_interval', 60, 'seconds between reloading of allowed_dir or allowed_file ' +
              'and allowed_ips and banned_ips lists'),
@@ -140,7 +140,7 @@ def statefiletemplate(x):
                 if dirkeys.has_key(y[1]): # and each should have a unique info_hash
                     raise ValueError
                 dirkeys[y[1]] = 1
-            
+
 
 alas = 'your file may exist elsewhere in the universe\nbut alas, not here\n'
 
@@ -226,7 +226,7 @@ class Tracker:
             self.allowed_ip_mtime = 0
             self.banned_ip_mtime = 0
             self.read_ip_lists()
-                
+
         self.only_local_override_ip = config['only_local_override_ip']
         if self.only_local_override_ip == 2:
             self.only_local_override_ip = not config['nat_check']
@@ -264,7 +264,7 @@ class Tracker:
                     not self.only_local_override_ip or local_IPs.includes(ip) ):
                     ip = gip
                 self.natcheckOK(infohash,x,ip,y['port'],y['left'])
-            
+
         for x in self.downloads.keys():
             self.times[x] = {}
             for y in self.downloads[x].keys():
@@ -272,7 +272,7 @@ class Tracker:
 
         self.trackerid = createPeerID('-T-')
         seed(self.trackerid)
-                
+
         self.reannounce_interval = config['reannounce_interval']
         self.save_dfile_interval = config['save_dfile_interval']
         self.show_names = config['show_names']
@@ -300,11 +300,11 @@ class Tracker:
                     print "# Log reopened: ", isotime()
                 except:
                     print "**warning** could not reopen logfile"
-             
-            signal.signal(signal.SIGHUP, huphandler)            
-                
+
+            signal.signal(signal.SIGHUP, huphandler)
+
         self.allow_get = config['allow_get']
-        
+
         self.t2tlist = T2TList(config['multitracker_enabled'], self.trackerid,
                                config['multitracker_reannounce_interval'],
                                config['multitracker_maxpeers'], config['http_timeout'],
@@ -336,11 +336,11 @@ class Tracker:
             if config['multitracker_allowed'] == 'autodetect':
                 config['multitracker_allowed'] = 'none'
             config['allowed_controls'] = 0
-                
+
         self.uq_broken = unquote('+') != ' '
         self.keep_dead = config['keep_dead']
         self.Filter = Filter(rawserver.add_task)
-        
+
         aggregator = config['aggregator']
         if aggregator == '0':
             self.is_aggregator = False
@@ -352,7 +352,7 @@ class Tracker:
             else:
                 self.aggregator_key = aggregator
             self.natcheck = False
-                
+
         send = config['aggregate_forward']
         if not send:
             self.aggregate_forward = None
@@ -398,7 +398,7 @@ class Tracker:
             if red:
                 return (302, 'Found', {'Content-Type': 'text/html', 'Location': red},
                         '<A HREF="'+red+'">Click Here</A>')
-            
+
             s = StringIO()
             s.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n' \
                 '<html><head><title>BitTorrent download info</title>\n')
@@ -560,7 +560,7 @@ class Tracker:
                           paramslist['peer_id'][0] == self.trackerid ): # oops! contacted myself
                 return (200, 'Not Authorized', {'Content-Type': 'text/plain', 'Pragma': 'no-cache'},
                     bencode({'failure reason': 'disallowed'}))
-            
+
             if ( self.config['multitracker_allowed'] == 'autodetect'
                         and not self.allowed[infohash].has_key('announce-list') ):
                 return (200, 'Not Authorized', {'Content-Type': 'text/plain', 'Pragma': 'no-cache'},
@@ -580,7 +580,7 @@ class Tracker:
             if l.has_key(key):
                 return l[key][0]
             return default
-        
+
         myid = params('peer_id','')
         if len(myid) != 20:
             raise ValueError, 'id not of length 20'
@@ -616,7 +616,7 @@ class Tracker:
             if peer:
                 if auth:
                     self.delete_peer(infohash,myid)
-        
+
         elif not peer:
             ts[myid] = clock()
             peer = {'ip': ip, 'port': port, 'left': left}
@@ -699,7 +699,7 @@ class Tracker:
         seeds = self.seedcount[infohash]
         data['complete'] = seeds
         data['incomplete'] = len(self.downloads[infohash]) - seeds
-        
+
         if ( self.config['allowed_controls']
                 and self.allowed[infohash].has_key('warning message') ):
             data['warning message'] = self.allowed[infohash]['warning message']
@@ -826,7 +826,7 @@ class Tracker:
                     kw = unquote(s[:i])
                     paramslist.setdefault(kw, [])
                     paramslist[kw] += [unquote(s[i+1:])]
-                    
+
             if path == '' or path == 'index.html':
                 return self.get_infopage()
             if (path == 'file'):
@@ -838,7 +838,7 @@ class Tracker:
 
             if path in ('scrape', 'scrape.php', 'tracker.php/scrape'):
                 return self.get_scrape(paramslist)
-            
+
             if not path in ('announce', 'announce.php', 'tracker.php/announce'):
                 return (404, 'Not Found', {'Content-Type': 'text/plain', 'Pragma': 'no-cache'}, alas)
 
@@ -848,7 +848,7 @@ class Tracker:
             if filtered:
                 return (400, 'Not Authorized', {'Content-Type': 'text/plain', 'Pragma': 'no-cache'},
                     bencode({'failure reason': filtered}))
-            
+
             infohash = params('info_hash')
             if not infohash:
                 raise ValueError, 'no info hash'
@@ -862,7 +862,7 @@ class Tracker:
             rsize = self.add_data(infohash, event, ip, paramslist)
 
         except ValueError, e:
-            return (400, 'Bad Request', {'Content-Type': 'text/plain'}, 
+            return (400, 'Bad Request', {'Content-Type': 'text/plain'},
                 'you sent me garbage - ' + str(e))
 
         if self.aggregate_forward and not paramslist.has_key('tracker'):
@@ -878,7 +878,7 @@ class Tracker:
             return_type = 1
         else:
             return_type = 0
-            
+
         data = self.peerlist(infohash, event=='stopped',
                              params('tracker'), not params('left'),
                              return_type, rsize)
@@ -891,7 +891,7 @@ class Tracker:
                 self.is_seeded[infohash] = True
             if params('check_seeded') and self.is_seeded.get(infohash):
                 data['seeded'] = 1
-            
+
         return (200, 'OK', {'Content-Type': 'text/plain', 'Pragma': 'no-cache'}, bencode(data))
 
 
@@ -911,7 +911,7 @@ class Tracker:
 
     def connectback_result(self, result, downloadid, peerid, ip, port):
         record = self.downloads.get(downloadid, {}).get(peerid)
-        if ( record is None 
+        if ( record is None
                  or (record['ip'] != ip and record.get('given ip') != ip)
                  or record['port'] != port ):
             if self.config['log_nat_checks']:
@@ -957,12 +957,12 @@ class Tracker:
                           [".torrent"] )
             ( self.allowed, self.allowed_dir_files, self.allowed_dir_blocked,
                 added, garbage2 ) = r
-            
+
             self.state['allowed'] = self.allowed
             self.state['allowed_dir_files'] = self.allowed_dir_files
 
             self.t2tlist.parse(self.allowed)
-            
+
         else:
             f = self.config['allowed_list']
             if self.allowed_list_mtime == os.path.getmtime(f):
@@ -984,7 +984,7 @@ class Tracker:
 
     def read_ip_lists(self):
         self.rawserver.add_task(self.read_ip_lists,self.parse_dir_interval)
-            
+
         f = self.config['allowed_ips']
         if f and self.allowed_ip_mtime != os.path.getmtime(f):
             self.allowed_IPs = IP_List()
@@ -993,7 +993,7 @@ class Tracker:
                 self.allowed_ip_mtime = os.path.getmtime(f)
             except (IOError, OSError):
                 print '**warning** unable to read allowed_IP list'
-                
+
         f = self.config['banned_ips']
         if f and self.banned_ip_mtime != os.path.getmtime(f):
             self.banned_IPs = IP_Range_List()
@@ -1002,7 +1002,7 @@ class Tracker:
                 self.banned_ip_mtime = os.path.getmtime(f)
             except (IOError, OSError):
                 print '**warning** unable to read banned_IP list'
-                
+
 
     def delete_peer(self, infohash, peerid):
         dls = self.downloads[infohash]

@@ -2,11 +2,11 @@
 # modified for multitracker operation by John Hoffman
 # see LICENSE.txt for license information
 
-from BitTornado.zurllib import urlopen, quote
+from herd.BitTornado.zurllib import urlopen, quote
 from urlparse import urlparse, urlunparse
 from socket import gethostbyname
 from btformats import check_peers
-from BitTornado.bencode import bdecode
+from herd.BitTornado.bencode import bdecode
 from threading import Thread, Lock
 from cStringIO import StringIO
 from traceback import print_exc
@@ -19,7 +19,7 @@ try:
 except ImportError:
     def getpid():
         return 1
-    
+
 try:
     True
 except:
@@ -52,7 +52,7 @@ class fakeflag:
         return self.state
 
 class Rerequester:
-    def __init__(self, trackerlist, interval, sched, howmany, minpeers, 
+    def __init__(self, trackerlist, interval, sched, howmany, minpeers,
             connect, externalsched, amount_left, up, down,
             port, ip, myid, infohash, timeout, errorfunc, excfunc,
             maxpeers, doneflag, upratefunc, downratefunc,
@@ -60,7 +60,7 @@ class Rerequester:
             seed_id = '', seededfunc = None, force_rapid_update = False ):
 
         self.excfunc = excfunc
-        newtrackerlist = []        
+        newtrackerlist = []
         for tier in trackerlist:
             if len(tier)>1:
                 shuffle(tier)
@@ -68,7 +68,7 @@ class Rerequester:
         self.trackerlist = newtrackerlist
         self.lastsuccessful = ''
         self.rejectedmessage = 'rejected by tracker - '
-        
+
         self.url = ('?info_hash=%s&peer_id=%s&port=%s' %
             (quote(infohash), quote(myid), str(port)))
         self.ip = ip
@@ -154,10 +154,10 @@ class Rerequester:
             self.special = specialurl
             self.rerequest(s, callback)
             return
-        
+
         else:
             s = ('%s&uploaded=%s&downloaded=%s&left=%s' %
-                (self.url, str(self.up()), str(self.down()), 
+                (self.url, str(self.up()), str(self.down()),
                 str(self.amount_left())))
         if self.last is not None:
             s += '&last=' + quote(str(self.last))
@@ -261,7 +261,7 @@ class Rerequester:
 
 
     def _rerequest_single(self, t, s, l, callback):
-        try:        
+        try:
             closer = [None]
             def timedout(self = self, l = l, closer = closer):
                 if self.lock.trip(l):
@@ -271,7 +271,7 @@ class Rerequester:
                     closer[0]()
                 except:
                     pass
-                    
+
             self.externalsched(timedout, self.timeout)
 
             err = None
@@ -287,7 +287,7 @@ class Rerequester:
                 h.close()
             except:
                 pass
-            if err:        
+            if err:
                 if self.lock.trip(l):
                     self.errorcodes['troublecode'] = err
                     self.lock.unwait(l)
@@ -298,7 +298,7 @@ class Rerequester:
                     self.errorcodes['troublecode'] = 'no data from tracker'
                     self.lock.unwait(l)
                 return
-            
+
             try:
                 r = bdecode(data, sloppy=1)
                 check_peers(r)
@@ -307,13 +307,13 @@ class Rerequester:
                     self.errorcodes['bad_data'] = 'bad data from tracker - ' + str(e)
                     self.lock.unwait(l)
                 return
-            
+
             if r.has_key('failure reason'):
                 if self.lock.trip(l):
                     self.errorcodes['rejected'] = self.rejectedmessage + r['failure reason']
                     self.lock.unwait(l)
                 return
-                
+
             if self.lock.trip(l, True):     # success!
                 self.lock.unwait(l)
             else:
@@ -423,4 +423,4 @@ class SuccessLock:
         self.lock.acquire()
         x = self.finished
         self.lock.release()
-        return x    
+        return x

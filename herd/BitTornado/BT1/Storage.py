@@ -1,7 +1,7 @@
 # Written by Bram Cohen
 # see LICENSE.txt for license information
 
-from BitTornado.piecebuffer import BufferPool
+from herd.BitTornado.piecebuffer import BufferPool
 from threading import Lock
 from time import time, strftime, localtime
 import os
@@ -12,7 +12,7 @@ try:
 except ImportError:
     fsync = lambda x: None
 from bisect import bisect
-    
+
 try:
     True
 except:
@@ -161,7 +161,7 @@ class Storage:
         file = self.files[f][0]
         if self.whandles.has_key(file):
             self._sync(file)
-            
+
 
     def get_total_length(self):
         return self.total_length
@@ -212,7 +212,7 @@ class Storage:
         self._close(file)
         if self.handlebuffer:
             self.handlebuffer.remove(file)
-        
+
 
     def _get_file_handle(self, file, for_write):
         if self.handles.has_key(file):
@@ -250,7 +250,7 @@ class Storage:
                 if DEBUG:
                     print_exc()
                 raise IOError('unable to open '+file+': '+str(e))
-            
+
             if self.handlebuffer is not None:
                 self.handlebuffer.append(file)
                 if len(self.handlebuffer) > self.max_files_open:
@@ -409,13 +409,13 @@ class Storage:
                 working_range_m = []
             working_range = working_range_b + working_range_m + working_range_e
 
-        if DEBUG:            
+        if DEBUG:
             print str(working_range)
             print str(update_pieces)
         r = (tuple(working_range), tuple(update_pieces), tuple(disabled_files))
         self.disabled_ranges[f] = r
         return r
-        
+
 
     def set_bufferdir(self, dir):
         self.bufferdir = dir
@@ -537,7 +537,7 @@ class Storage:
 
             if DEBUG:
                 print valid_pieces.keys()
-            
+
             def test(old, size, mtime):
                 oldsize, oldmtime = old
                 if size != oldsize:
@@ -579,6 +579,6 @@ class Storage:
             return []
 
         if DEBUG:
-            print valid_pieces.keys()                        
+            print valid_pieces.keys()
         return valid_pieces.keys()
 

@@ -1,7 +1,7 @@
 # Written by Bram Cohen
 # see LICENSE.txt for license information
 
-from BitTornado.CurrentRateMeasure import Measure
+from herd.BitTornado.CurrentRateMeasure import Measure
 
 try:
     True
@@ -125,7 +125,7 @@ class Upload:
             self.choked = False
             self.cleared = False
             self.connection.send_unchoke()
-        
+
     def disconnected(self):
         if self.piecebuf:
             self.piecebuf.release()
@@ -133,7 +133,7 @@ class Upload:
 
     def is_choked(self):
         return self.choked
-        
+
     def is_interested(self):
         return self.interested
 
@@ -142,4 +142,4 @@ class Upload:
 
     def get_rate(self):
         return self.measure.get_rate()
-    
+

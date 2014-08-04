@@ -2,7 +2,7 @@
 # see LICENSE.txt for license information
 
 from random import randrange, shuffle
-from BitTornado.clock import clock
+from herd.BitTornado.clock import clock
 try:
     True
 except:
@@ -200,7 +200,7 @@ class PiecePicker:
 
     def am_I_complete(self):
         return self.done
-    
+
     def bump(self, piece):
         l = self.interests[self.level_in_interests[piece]]
         pos = self.pos_in_interests[piece]
