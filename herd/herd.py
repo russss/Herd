@@ -45,7 +45,7 @@ def get_random_open_port(port, interface=""):
         If a port range is input then a random port will be returned if there is no
         Listening socket for that port.
     """
-    regex=re.compile(r'[0-9]+-{0,1}[0-9]*')
+    regex = re.compile(r'[0-9]+-{0,1}[0-9]*')
     #if port is an integer then convert to string
     if isinstance(port, int):
         port = str(port)
@@ -56,7 +56,7 @@ def get_random_open_port(port, interface=""):
         raise ValueError("port str must be a number or a range of numbers between 1 and 65535.")
     ports = sorted(map(lambda x: int(x), port.split('-')))
     #Do range checking on the input.
-    if len(ports) == 2 and ( ports[1] > 65535 ):
+    if len(ports) == 2 and ports[1] > 65535:
         raise ValueError("port range is between 1 and 65535.")
     elif ports[0] < 1 or ports[0] > 65535:
         raise ValueError("port range is between 1 and 65535.")
@@ -65,7 +65,7 @@ def get_random_open_port(port, interface=""):
         #Since we're given a single port don't even try to test it.  Just return the value.
         return ports[0]
     else:
-        port = random.randrange(ports[0],ports[1]+1)
+        port = random.randrange(ports[0], ports[1] + 1)
         count = 0
         found = False
         while not found:
@@ -79,9 +79,9 @@ def get_random_open_port(port, interface=""):
                 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 s.bind((interface, port))
                 found = True
-            except socket.error,e:
+            except socket.error:
                 #Generate another port to be tested because the last one had a listening socket.
-                port = random.randrange(ports[0], ports[1]+1)
+                port = random.randrange(ports[0], ports[1] + 1)
             s.close()
             count += 1
             #avoid an infinite loop
@@ -205,8 +205,7 @@ def mktorrent(file_name, tracker):
 
 
 def track():
-    bttrack.track(["--dfile", opts['data_file'], "--port",
-                    opts['port']])
+    bttrack.track(["--dfile", opts['data_file'], "--port", opts['port']])
 
 
 def seed(torrent, local_file):
@@ -231,12 +230,13 @@ def herdmain():
     # filter out comments and empty lines
     hosts = [host for host in hosts if not re.match("^#", host) and not host == '']
     if len(hosts) == 0:
-      sys.exit('ERROR: No hosts provided.')
+        sys.exit('ERROR: No hosts provided.')
     # handles duplicates
     hosts = list(set(hosts))
     log.info("Running with options: %s" % opts)
     log.info("Running for hosts: %s" % hosts)
     run(opts['local-file'], opts['remote-file'], hosts)
+
 
 def run_with_opts(local_file, remote_file, hosts='', retry=0, port=8998,
                   remote_path='/tmp/herd', data_file='./data',
