@@ -84,7 +84,6 @@ class HeadlessDisplayer:
         self.percentDone = '100'
         self.timeEst = 'Download Succeeded!'
         self.downRate = ''
-        #self.display()
 
         global isPeer
 
@@ -113,13 +112,11 @@ class HeadlessDisplayer:
         global doneFlag
         self.return_code = 1
         doneFlag.set()
-        #self.display()
 
     def error(self, errormsg):
         self.errors.append(errormsg)
         self.display()
         global doneFlag
-        #print errormsg
         self.return_code = 1
         doneFlag.set()
 
@@ -178,7 +175,6 @@ class HeadlessDisplayer:
 
 
 def run(params):
-    #cols = 80
     def disp_exception(text):
         print text
 
@@ -189,8 +185,8 @@ def run(params):
         configdir.setDefaults(defaults, defaultsToIgnore)
         configdefaults = configdir.loadConfig()
         defaults.append(('save_options', 0, "whether to save the current "
-                        "options as the new default configuration "
-                        "(only for btdownloadheadless.py)"))
+                         "options as the new default configuration "
+                         "(only for btdownloadheadless.py)"))
         try:
             config = parse_params(params, configdefaults)
         except ValueError, e:
