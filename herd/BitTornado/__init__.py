@@ -5,7 +5,10 @@ version = version_short+' ('+product_name+')'
 report_email = version_short+'@degreez.net'
 
 from types import StringType
-from sha import sha
+try:
+    from hashlib import sha1 as sha
+except ImportError:
+    from sha import sha
 from time import time, clock
 try:
     from os import getpid
