@@ -4,7 +4,10 @@
 
 from os.path import getsize, split, join, abspath, isdir
 from os import listdir
-from sha import sha
+try:
+    from hashlib import sha1 as sha
+except ImportError:
+    from sha import sha
 from copy import copy
 from string import strip
 from herd.BitTornado.bencode import bencode

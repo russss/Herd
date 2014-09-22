@@ -24,7 +24,10 @@ from BT1.Statistics import Statistics
 from ConfigDir import ConfigDir
 from bencode import bencode, bdecode
 from natpunch import UPnP_test
-from sha import sha
+try:
+    from hashlib import sha1 as sha
+except ImportError:
+    from sha import sha
 from os import path, makedirs, listdir
 from parseargs import parseargs, formatDefinitions, defaultargs
 from socket import error as socketerror

@@ -36,7 +36,10 @@ from sys import argv
 import sys
 import os
 import threading
-from sha import sha
+try:
+    from hashlib import sha1 as sha
+except ImportError:
+    from sha import sha
 from BitTornado.clock import clock
 from BitTornado import createPeerID
 from BitTornado.ConfigDir import ConfigDir
