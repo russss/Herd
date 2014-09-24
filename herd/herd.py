@@ -171,9 +171,6 @@ def transfer(host, local_file, remote_target, retry=0):
 
 
 def ssh(host, command):
-    if not os.path.exists(opts['log_dir']):
-        os.makedirs(opts['log_dir'])
-
     with open("%s%s%s-ssh.log" % (opts['log_dir'], os.path.sep, host),
               'a') as log:
         result = subprocess.call([
@@ -221,6 +218,8 @@ def local_ip():
 
 
 def herdmain():
+    if not os.path.exists(opts['log_dir']):
+        os.makedirs(opts['log_dir'])
     if not os.path.exists(opts['hosts']) and opts['hostlist'] is False:
         hosts = [line.strip() for line in sys.stdin]
     elif opts['hosts']:
