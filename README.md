@@ -1,3 +1,5 @@
+**DEPRECATED PROJECT**: I (@russss) am no longer maintaining this code - in fact I've never actually deployed it in production myself, although others have. I won't be accepting any more pull requests for this project. If you're maintaining a fork, let me know and I'll link to it.
+
 ## About
 
 Herd is a torrent-based file distribution system based on [Murder](https://github.com/lg/murder).
